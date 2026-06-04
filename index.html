@@ -1,31 +1,355 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TrendFlow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#080810;color:#fff;font-family:'Space Mono',monospace;max-width:420px;margin:0 auto;min-height:100vh}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff2d5560}50%{box-shadow:0 0 0 6px #ff2d5500}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .header{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+    .logo{font-family:'Syne',sans-serif;font-weight:900;font-size:22px;letter-spacing:-0.03em}
+    .logo span{color:#ff2d55}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:#ff2d55;display:inline-block;animation:pulse 1.5s infinite;margin-right:4px}
+    .live-label{font-size:10px;color:#ff2d55;font-weight:700;letter-spacing:0.1em}
+    .subtitle{font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px}
+    .refresh-btn{background:rgba(255,45,85,0.15);border:1px solid rgba(255,45,85,0.3);color:#ff2d55;border-radius:10px;padding:6px 12px;font-size:11px;font-family:'Space Mono',monospace;cursor:pointer}
+    .regions{display:flex;gap:6px;margin-top:12px;overflow-x:auto;padding-bottom:2px}
+    .region-btn{flex-shrink:0;padding:4px 10px;border-radius:99px;font-size:11px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);cursor:pointer;font-family:'Space Mono',monospace}
+    .region-btn.active{border-color:#ff2d55;background:rgba(255,45,85,0.15);color:#ff2d55}
+    .tabs{display:flex;border-bottom:1px solid rgba(255,255,255,0.07)}
+    .tab{flex:1;padding:10px 4px;font-size:9px;font-family:'Space Mono',monospace;border:none;border-bottom:2px solid transparent;background:transparent;color:rgba(255,255,255,0.35);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;letter-spacing:0.02em}
+    .tab.active{border-bottom-color:#ff2d55;color:#ff2d55}
+    .tab-icon{font-size:14px}
+    .content{padding:16px 16px 100px;animation:fadeIn 0.3s ease}
+    .card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:20px;margin-bottom:12px}
+    .section-title{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;margin-bottom:4px}
+    .section-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:16px}
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+    .stat-box{text-align:center;padding:12px 8px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07)}
+    .stat-val{font-size:22px;font-weight:900;font-family:'Syne',sans-serif}
+    .stat-label{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px}
+    .hashtag-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .hashtag-num{width:18px;font-size:10px;color:rgba(255,255,255,0.3);font-weight:700}
+    .hashtag-info{flex:1}
+    .hashtag-name{font-size:13px;font-weight:700}
+    .hashtag-views{font-size:11px;color:rgba(255,255,255,0.45)}
+    .progress-bg{height:3px;border-radius:99px;background:rgba(255,255,255,0.07);margin-top:4px}
+    .progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#ff2d55,#ff6b35)}
+    .sound-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.03)}
+    .sound-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .sound-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sound-author{font-size:10px;color:rgba(255,255,255,0.4)}
+    .pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:0.05em}
+    .post-row{margin-bottom:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.03);border-left:2px solid rgba(255,45,85,0.4)}
+    .post-title{font-size:11px;line-height:1.4}
+    .post-meta{font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px}
+    .event-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px 12px;border-radius:10px}
+    .event-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+    .event-name{font-size:12px;font-weight:700}
+    .event-sub{font-size:10px;color:rgba(255,255,255,0.4)}
+    .keyword-chip{display:inline-flex;align-items:center;gap:6px;margin:3px;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:12px;font-weight:600}
+    .news-row{margin-bottom:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)}
+    .news-title{font-size:12px;font-weight:700;line-height:1.4;margin-bottom:4px}
+    .news-source{font-size:10px;color:rgba(255,255,255,0.35)}
+    .idea-row{padding:8px 10px;margin-bottom:6px;border-radius:8px;background:rgba(255,255,255,0.04);font-size:11px;color:rgba(255,255,255,0.85);line-height:1.5}
+    .footer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;padding:10px 16px 20px;background:rgba(8,8,16,0.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.07);text-align:center;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:0.1em}
+    .error-bar{margin:12px 20px 0;padding:8px 12px;border-radius:10px;background:rgba(255,159,10,0.1);border:1px solid rgba(255,159,10,0.3);font-size:10px;color:#ff9f0a}
+    .hidden{display:none}
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-track{background:#111}
+    ::-webkit-scrollbar-thumb{background:#333;border-radius:99px}
+  </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="module">
-    import { createRoot } from 'https://esm.sh/react-dom@18/client';
-    import { createElement, useState, useEffect, useCallback } from 'https://esm.sh/react@18';
-    
-    // App will load from CDN
-    const App = () => createElement('div', {
-      style: { 
-        background: '#080810', 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        color: 'white',
-        fontFamily: 'monospace',
-        fontSize: '20px'
-      }
-    }, '⚡ TrendFlow -- Chargement...');
-    
-    createRoot(document.getElementById('root')).render(createElement(App));
-  </script>
+
+<div class="header">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="logo">trend<span>flow</span></span>
+        <span class="live-dot"></span>
+        <span class="live-label">LIVE</span>
+      </div>
+      <div class="subtitle" id="subtitle">Chargement des données...</div>
+    </div>
+    <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
+  </div>
+  <div class="regions" id="regions"></div>
+</div>
+
+<div id="error-bar" class="error-bar hidden"></div>
+
+<div class="tabs" id="tabs"></div>
+<div class="content" id="content"></div>
+<div class="footer">TRENDFLOW · 7 SOURCES · AUTO-REFRESH 1H · 0€</div>
+
+<script>
+const API_BASE = "https://your-backend.railway.app"; // ← REMPLACE ICI
+
+const REGIONS = [
+  {code:"FR",flag:"🇫🇷",name:"France"},
+  {code:"US",flag:"🇺🇸",name:"USA"},
+  {code:"GB",flag:"🇬🇧",name:"UK"},
+  {code:"",flag:"🌍",name:"Global"}
+];
+
+const TABS = [
+  {id:"overview",icon:"⚡",label:"Overview"},
+  {id:"tiktok",icon:"🎵",label:"TikTok"},
+  {id:"content",icon:"🎬",label:"Contenu"},
+  {id:"events",icon:"📅",label:"Events"},
+  {id:"news",icon:"📰",label:"News"}
+];
+
+const MOCK = {
+  meta:{region:"FR",generated_at:new Date().toISOString(),sources_count:7},
+  google_trends:[
+    {keyword:"AI video"},{keyword:"ChatGPT"},{keyword:"POV tiktok"},
+    {keyword:"Satisfying clips"},{keyword:"Day in my life"},{keyword:"GRWM"},
+    {keyword:"Storytime"},{keyword:"Challenge viral"},{keyword:"Transformation"}
+  ],
+  tiktok:{
+    hashtags:[
+      {hashtag:"fyp",video_views:980000000,rank:1},
+      {hashtag:"viral",video_views:750000000,rank:2},
+      {hashtag:"foryou",video_views:620000000,rank:3},
+      {hashtag:"trending",video_views:480000000,rank:4},
+      {hashtag:"pourtoi",video_views:390000000,rank:5},
+      {hashtag:"grwm",video_views:310000000,rank:6},
+      {hashtag:"satisfying",video_views:280000000,rank:7},
+      {hashtag:"dayinmylife",video_views:250000000,rank:8}
+    ],
+    sounds:[
+      {sound_name:"Espresso",author:"Sabrina Carpenter",video_count:2400000,rank:1},
+      {sound_name:"Feather",author:"Sabrina Carpenter",video_count:1800000,rank:2},
+      {sound_name:"APT.",author:"ROSE & Bruno Mars",video_count:1500000,rank:3},
+      {sound_name:"Die With A Smile",author:"Lady Gaga",video_count:1200000,rank:4},
+      {sound_name:"Original Sound",author:"@creator_fr",video_count:980000,rank:5}
+    ]
+  },
+  reddit:{
+    top_posts:[
+      {title:"This transformation took 30 days",subreddit:"nextfuckinglevel",score:48200},
+      {title:"POV: you discovered this life hack",subreddit:"LifeProTips",score:39500},
+      {title:"Nobody talks about this everyday hack",subreddit:"todayilearned",score:31200},
+      {title:"Rating every outfit from TikTok",subreddit:"funny",score:28900},
+      {title:"Day 1 vs Day 30 results",subreddit:"BeAmazed",score:24300}
+    ],
+    viral_keywords:[
+      {word:"transformation",count:12},{word:"hack",count:9},{word:"nobody",count:8},
+      {word:"viral",count:7},{word:"rating",count:6},{word:"reaction",count:5},
+      {word:"challenge",count:5},{word:"day",count:4}
+    ]
+  },
+  events:{
+    upcoming:[
+      {name:"Pride Month",days_until:2,category:"social",urgency:"now"},
+      {name:"Summer Solstice",days_until:18,category:"seasonal",urgency:"upcoming"},
+      {name:"Fête Nationale FR",days_until:41,category:"france",urgency:"upcoming"}
+    ],
+    today:{events:[
+      {type:"holiday",text:"World Bicycle Day"},
+      {type:"historical",year:1989,text:"Tiananmen Square protests"}
+    ]}
+  },
+  news:{
+    entertainment:[
+      {title:"TikTok announces new creator monetization tools",source:"TechCrunch"},
+      {title:"Short-form video dominates Q2 2026 engagement",source:"Forbes"},
+      {title:"New viral format sweeping across Gen Z creators",source:"Wired"}
+    ],
+    technology:[
+      {title:"AI video generation tools hit record adoption",source:"The Verge"},
+      {title:"CapCut releases major AI editing update",source:"Mashable"}
+    ]
+  }
+};
+
+let currentRegion = "FR";
+let currentTab = "overview";
+let data = MOCK;
+
+function fmtViews(n){
+  if(!n)return"--";
+  if(n>=1e9)return(n/1e9).toFixed(1)+"B";
+  if(n>=1e6)return(n/1e6).toFixed(1)+"M";
+  if(n>=1e3)return(n/1e3).toFixed(0)+"K";
+  return n.toString();
+}
+
+function timeAgo(iso){
+  const diff=Math.floor((Date.now()-new Date(iso))/1000);
+  if(diff<60)return"just now";
+  if(diff<3600)return Math.floor(diff/60)+"m ago";
+  return Math.floor(diff/3600)+"h ago";
+}
+
+function renderRegions(){
+  document.getElementById("regions").innerHTML = REGIONS.map(r=>
+    `<button class="region-btn${r.code===currentRegion?" active":""}" onclick="setRegion('${r.code}')">${r.flag} ${r.name}</button>`
+  ).join("");
+}
+
+function renderTabs(){
+  document.getElementById("tabs").innerHTML = TABS.map(t=>
+    `<button class="tab${t.id===currentTab?" active":""}" onclick="setTab('${t.id}')"><span class="tab-icon">${t.icon}</span>${t.label}</button>`
+  ).join("");
+}
+
+function setRegion(code){currentRegion=code;renderRegions();loadData();}
+function setTab(id){currentTab=id;renderTabs();renderContent();}
+
+async function loadData(){
+  document.getElementById("subtitle").textContent="Chargement...";
+  try{
+    const r=await fetch(`${API_BASE}/api/dashboard?region=${currentRegion}`);
+    if(!r.ok)throw new Error("API unavailable");
+    data=await r.json();
+    document.getElementById("error-bar").classList.add("hidden");
+  }catch(e){
+    data=MOCK;
+    const eb=document.getElementById("error-bar");
+    eb.textContent="⚠️ Mode démo -- connectez votre backend Railway";
+    eb.classList.remove("hidden");
+  }
+  document.getElementById("subtitle").textContent=`Mis à jour ${timeAgo(data.meta?.generated_at||new Date().toISOString())} · ${data.meta?.sources_count||7} sources`;
+  renderContent();
+}
+
+function renderContent(){
+  const hashtags=data?.tiktok?.hashtags||[];
+  const sounds=data?.tiktok?.sounds||[];
+  const google=data?.google_trends||[];
+  const posts=data?.reddit?.top_posts||[];
+  const keywords=data?.reddit?.viral_keywords||[];
+  const upcoming=data?.events?.upcoming||[];
+  const todayEvts=data?.events?.today?.events||[];
+  const allNews=Object.values(data?.news||{}).flat().slice(0,8);
+  const colors=["#ff2d55","#ff6b35","#ffd60a","#30d158","#0a84ff"];
+
+  let html="";
+
+  if(currentTab==="overview"){
+    html+=`<div class="stats-grid">
+      <div class="stat-box"><div class="stat-val" style="color:#ff2d55">${hashtags.length}</div><div class="stat-label">Hashtags</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:#ffd60a">${sounds.length}</div><div class="stat-label">Sounds</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:#30d158">${upcoming.length}</div><div class="stat-label">Events</div></div>
+    </div>`;
+
+    html+=`<div class="card"><div class="section-title">🔍 Google Trends</div><div class="section-sub">Recherches en hausse aujourd'hui</div><div style="display:flex;flex-wrap:wrap">`;
+    google.slice(0,12).forEach(t=>{html+=`<span class="keyword-chip">${t.keyword||t.word}</span>`;});
+    html+=`</div></div>`;
+
+    html+=`<div class="card"><div class="section-title">🔥 Top TikTok Hashtags</div><div class="section-sub">Région: ${currentRegion||"Global"}</div>`;
+    hashtags.slice(0,5).forEach((h,i)=>{
+      const pct=Math.min(100,((h.video_views||0)/980000000)*100);
+      html+=`<div class="hashtag-row"><span class="hashtag-num">#${i+1}</span><div class="hashtag-info"><div style="display:flex;justify-content:space-between"><span class="hashtag-name">#${h.hashtag}</span><span class="hashtag-views">${fmtViews(h.video_views)}</span></div><div class="progress-bg"><div class="progress-fill" style="width:${pct}%"></div></div></div></div>`;
+    });
+    html+=`</div>`;
+
+    html+=`<div class="card"><div class="section-title">📈 Formats viraux Reddit</div><div class="section-sub">Signaux précoces de contenu</div>`;
+    posts.slice(0,4).forEach(p=>{
+      html+=`<div class="post-row"><div class="post-title">${p.title}</div><div class="post-meta">r/${p.subreddit} · ${fmtViews(p.score)} pts</div></div>`;
+    });
+    html+=`</div>`;
+
+    if(upcoming.length){
+      html+=`<div class="card"><div class="section-title">⏰ Opportunités imminentes</div><div class="section-sub">Contenu à préparer maintenant</div>`;
+      upcoming.slice(0,3).forEach(e=>{
+        const c=e.urgency==="now"?"#ff2d55":e.urgency==="soon"?"#ff9f0a":"#30d158";
+        const lbl=e.urgency==="now"?"NOW":e.urgency==="soon"?"SOON":`${e.days_until}j`;
+        const icon=e.category==="social"?"🏳️‍🌈":e.category==="france"?"🇫🇷":"📅";
+        html+=`<div class="event-row" style="background:${c}11;border:1px solid ${c}33"><div class="event-icon" style="background:${c}22">${icon}</div><div style="flex:1"><div class="event-name">${e.name}</div><div class="event-sub">Content opportunity</div></div><span class="pill" style="background:${c}22;color:${c};border:1px solid ${c}44">${lbl}</span></div>`;
+      });
+      html+=`</div>`;
+    }
+  }
+
+  else if(currentTab==="tiktok"){
+    html+=`<div class="card"><div class="section-title">#️⃣ Hashtags Tendances</div><div class="section-sub">Triés par volume de vues</div>`;
+    hashtags.forEach((h,i)=>{
+      const pct=Math.min(100,((h.video_views||0)/980000000)*100);
+      html+=`<div class="hashtag-row"><span class="hashtag-num">#${i+1}</span><div class="hashtag-info"><div style="display:flex;justify-content:space-between"><span class="hashtag-name">#${h.hashtag}</span><span class="hashtag-views">${fmtViews(h.video_views)}</span></div><div class="progress-bg"><div class="progress-fill" style="width:${pct}%"></div></div></div></div>`;
+    });
+    html+=`</div>`;
+
+    html+=`<div class="card"><div class="section-title">🎵 Sons Viraux</div><div class="section-sub">Utilise-les maintenant</div>`;
+    sounds.forEach((s,i)=>{
+      html+=`<div class="sound-row"><div class="sound-icon" style="background:${colors[i%colors.length]}33"">🎵</div><div style="flex:1;min-width:0"><div class="sound-name">${s.sound_name}</div><div class="sound-author">${s.author} · ${fmtViews(s.video_count)} vids</div></div><span class="pill" style="background:${colors[i%colors.length]}22;color:${colors[i%colors.length]};border:1px solid ${colors[i%colors.length]}44">#${s.rank}</span></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  else if(currentTab==="content"){
+    html+=`<div class="card"><div class="section-title">💡 Mots-clés créateurs</div><div class="section-sub">Formats qui convertissent</div><div style="display:flex;flex-wrap:wrap">`;
+    keywords.forEach(k=>{html+=`<span class="keyword-chip">${k.word}<span style="font-size:10px;color:rgba(255,255,255,0.4);margin-left:4px">×${k.count}</span></span>`;});
+    html+=`</div></div>`;
+
+    html+=`<div class="card"><div class="section-title">🎬 Formats viraux du moment</div><div class="section-sub">Tirés de Reddit</div>`;
+    posts.forEach(p=>{
+      html+=`<div class="news-row"><div class="news-title">${p.title}</div><div style="display:flex;gap:6px;margin-top:5px"><span class="pill" style="background:#ff2d5522;color:#ff2d55;border:1px solid #ff2d5544">r/${p.subreddit}</span><span class="pill" style="background:#0a84ff22;color:#0a84ff;border:1px solid #0a84ff44">${fmtViews(p.score)} pts</span></div></div>`;
+    });
+    html+=`</div>`;
+
+    html+=`<div class="card" style="background:linear-gradient(135deg,rgba(255,45,85,0.08),rgba(10,132,255,0.08));border:1px solid rgba(255,45,85,0.2)"><div class="section-title">🤖 Idées de contenu</div><div class="section-sub">Générées depuis les tendances</div>`;
+    const ideas=[
+      `POV: ${google[0]?.keyword||"viral topic"} en 60 secondes`,
+      `Day in my life -- ${upcoming[0]?.name||"trending event"} edition`,
+      `Rating every ${google[2]?.keyword||"trend"} I tried this week`,
+      `Nobody talks about ${keywords[0]?.word||"this hack"}`,
+      `${sounds[0]?.sound_name||"Trending sound"} × transformation content`
+    ];
+    ideas.forEach(idea=>{html+=`<div class="idea-row">✦ ${idea}</div>`;});
+    html+=`</div>`;
+  }
+
+  else if(currentTab==="events"){
+    if(upcoming.length){
+      html+=`<div class="card"><div class="section-title">⏳ Événements à venir</div><div class="section-sub">30 jours -- créez en avance</div>`;
+      upcoming.forEach(e=>{
+        const c=e.urgency==="now"?"#ff2d55":e.urgency==="soon"?"#ff9f0a":"#30d158";
+        const lbl=e.urgency==="now"?"NOW":e.urgency==="soon"?"SOON":`${e.days_until}j`;
+        const icon=e.category==="social"?"🏳️‍🌈":e.category==="france"?"🇫🇷":"📅";
+        html+=`<div class="event-row" style="background:${c}11;border:1px solid ${c}33"><div class="event-icon" style="background:${c}22">${icon}</div><div style="flex:1"><div class="event-name">${e.name}</div><div class="event-sub">Dans ${e.days_until} jours</div></div><span class="pill" style="background:${c}22;color:${c};border:1px solid ${c}44">${lbl}</span></div>`;
+      });
+      html+=`</div>`;
+    }
+
+    if(todayEvts.length){
+      html+=`<div class="card"><div class="section-title">📖 Aujourd'hui dans l'histoire</div><div class="section-sub">Via Wikipedia</div>`;
+      todayEvts.forEach(e=>{
+        const c=e.type==="holiday"?"#30d158":"#0a84ff";
+        const lbl=e.type==="holiday"?"🎉 Holiday":e.type==="birthday"?"🎂 Birthday":`📅 ${e.year}`;
+        html+=`<div class="news-row"><span class="pill" style="background:${c}22;color:${c};border:1px solid ${c}44;margin-bottom:6px;display:inline-block">${lbl}</span><div style="font-size:11px;color:rgba(255,255,255,0.75);line-height:1.5">${e.text}</div></div>`;
+      });
+      html+=`</div>`;
+    }
+  }
+
+  else if(currentTab==="news"){
+    html+=`<div class="card"><div class="section-title">📰 Actualités créateurs</div><div class="section-sub">Sources agrégées en temps réel</div>`;
+    allNews.forEach(a=>{
+      html+=`<div class="news-row"${a.url?` onclick="window.open('${a.url}','_blank')" style="cursor:pointer"`:""}>
+        <div class="news-title">${a.title||""}</div>
+        <div style="display:flex;justify-content:space-between"><span class="news-source">${a.source||""}</span>${a.url?`<span style="font-size:10px;color:#0a84ff">→ Read</span>`:""}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  document.getElementById("content").innerHTML=html;
+}
+
+// Init
+renderRegions();
+renderTabs();
+loadData();
+setInterval(loadData, 3600000);
+</script>
 </body>
 </html>
