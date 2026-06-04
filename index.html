@@ -208,7 +208,8 @@ function setTab(id){currentTab=id;renderTabs();renderContent();}
 async function loadData(){
   document.getElementById("subtitle").textContent="Chargement...";
   try{
-    const r=await fetch(`${API_BASE}/api/dashboard?region=${currentRegion}`);
+    const r=await fetch(`${API_BASE}/api/dashboard?region=${currentRegion}`,{signal:AbortSignal.timeout(10000)});
+
     if(!r.ok)throw new Error("API unavailable");
     data=await r.json();
     document.getElementById("error-bar").classList.add("hidden");
